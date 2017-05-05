@@ -1,7 +1,7 @@
 
-public abstract class Action {
+public abstract class Node implements RobotProgramNode {
 	
-	public Action() {
+	public Node() {
 		
 	}
 	

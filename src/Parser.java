@@ -10,7 +10,7 @@ import javax.swing.JFileChooser;
  * parseProgram and all the rest of the parser.
  */
 public class Parser {
-
+	
 	/**
 	 * Top level parse method, called by the World
 	 */
@@ -24,7 +24,6 @@ public class Parser {
 			scan.useDelimiter("\\s+|(?=[{}(),;])|(?<=[{}(),;])");
 
 			RobotProgramNode n = parseProgram(scan); // You need to implement this!!!
-
 			scan.close();
 			return n;
 		} catch (FileNotFoundException e) {
@@ -86,8 +85,57 @@ public class Parser {
 	 * PROG ::= STMT+
 	 */
 	static RobotProgramNode parseProgram(Scanner s) {
+		List<String> data = new ArrayList<>();
+		while (s.hasNextLine()) {
+			String currentLine = s.nextLine();
+			data.add(currentLine);
+			System.out.println(currentLine);
+		}
 		
-		return null;
+		System.out.println();
+		List<Node> commands = new ArrayList<>();
+		
+		boolean inLoop = false;
+		LoopNode currentLoopNode = null;
+		
+		for (int i=0; i<data.size(); i++) {
+			String d = data.get(i);
+			if (d.contains("turnL")) {
+				TurnNode n = new TurnNode(false);
+				if (inLoop) {
+					currentLoopNode.getBlock().getComponents().add(n);
+				} else {
+					commands.add(n);
+				}
+			}
+			if (d.contains("turnR")) {
+				TurnNode n = new TurnNode(true);
+				if (inLoop) {
+					currentLoopNode.getBlock().getComponents().add(n);
+				} else {
+					commands.add(n);
+				}
+			}
+			if (d.contains("move")) {
+				MoveNode n = new MoveNode();
+				if (inLoop) {
+					currentLoopNode.getBlock().getComponents().add(n);
+				} else {
+					commands.add(n);
+				}
+			}
+			if (d.equals("loop{") || d.equals("loop {")) {
+				inLoop = true;
+				currentLoopNode = new LoopNode(new BlockNode(new ArrayList<>()));
+			}
+			if (d.equals("}") || !d.contains("	")) {
+				inLoop = false;
+				LoopNode temp = currentLoopNode;
+				commands.add(temp);
+				currentLoopNode = null;
+			}
+		}
+		return new BlockNode(commands);
 	}
 
 	// utility methods for the parser

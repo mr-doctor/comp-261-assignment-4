@@ -1,8 +1,8 @@
 
-public class Move extends Action {
+public class MoveNode extends Node {
 
-	public Move() {
-		// TODO Auto-generated constructor stub
+	public MoveNode() {
+		
 	}
 
 	@Override
