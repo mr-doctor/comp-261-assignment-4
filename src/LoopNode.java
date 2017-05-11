@@ -10,8 +10,7 @@ public class LoopNode extends Node {
 	@Override
 	public String toString() {
 		String s = "loop {\n";
-		for (Node n : this.block.getComponents()) {
-			System.out.println("adding " + n.toString());
+		for (RobotProgramNode n : this.block.getComponents()) {
 			s += "	" + n.toString();
 		}
 		s += "}\n";

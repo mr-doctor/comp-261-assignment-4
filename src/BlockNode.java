@@ -2,16 +2,21 @@ import java.util.List;
 
 public class BlockNode extends Node {
 
-	private List<Node> components;
+	private List<RobotProgramNode> components;
 	
-	public BlockNode(List<Node> block) {
+	public BlockNode(List<RobotProgramNode> block) {
 		this.components = block;
+		for (int i=0; i<this.components.size(); i++) {
+			if (this.components.get(i) == null) {
+				this.components.remove(i);
+			}
+		}
 	}
 
 	@Override
 	public String toString() {
 		String s = "";
-		for (Node n : this.components) {
+		for (RobotProgramNode n : this.components) {
 			s = s + n.toString() + "\n";
 		}
 		return s;
@@ -19,12 +24,12 @@ public class BlockNode extends Node {
 
 	@Override
 	public void execute(Robot r) {
-		for (Node n : this.components) {
+		for (RobotProgramNode n : this.components) {
 			n.execute(r);
 		}
 	}
 	
-	public List<Node> getComponents() {
+	public List<RobotProgramNode> getComponents() {
 		return this.components;
 	}
 

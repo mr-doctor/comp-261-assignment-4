@@ -10,7 +10,7 @@ import javax.swing.JFileChooser;
  * parseProgram and all the rest of the parser.
  */
 public class Parser {
-	
+
 	/**
 	 * Top level parse method, called by the World
 	 */
@@ -23,7 +23,8 @@ public class Parser {
 			// when one of them is one of (){},;
 			scan.useDelimiter("\\s+|(?=[{}(),;])|(?<=[{}(),;])");
 
-			RobotProgramNode n = parseProgram(scan); // You need to implement this!!!
+			RobotProgramNode n = parseProgram(scan); // You need to implement
+														// this!!!
 			scan.close();
 			return n;
 		} catch (FileNotFoundException e) {
@@ -85,57 +86,56 @@ public class Parser {
 	 * PROG ::= STMT+
 	 */
 	static RobotProgramNode parseProgram(Scanner s) {
-		List<String> data = new ArrayList<>();
-		while (s.hasNextLine()) {
-			String currentLine = s.nextLine();
-			data.add(currentLine);
-			System.out.println(currentLine);
+		if (!s.hasNext()) {
+			return null;
 		}
-		
-		System.out.println();
-		List<Node> commands = new ArrayList<>();
-		
-		boolean inLoop = false;
-		LoopNode currentLoopNode = null;
-		
-		for (int i=0; i<data.size(); i++) {
-			String d = data.get(i);
-			if (d.contains("turnL")) {
-				TurnNode n = new TurnNode(false);
-				if (inLoop) {
-					currentLoopNode.getBlock().getComponents().add(n);
-				} else {
-					commands.add(n);
-				}
-			}
-			if (d.contains("turnR")) {
-				TurnNode n = new TurnNode(true);
-				if (inLoop) {
-					currentLoopNode.getBlock().getComponents().add(n);
-				} else {
-					commands.add(n);
-				}
-			}
-			if (d.contains("move")) {
-				MoveNode n = new MoveNode();
-				if (inLoop) {
-					currentLoopNode.getBlock().getComponents().add(n);
-				} else {
-					commands.add(n);
-				}
-			}
-			if (d.equals("loop{") || d.equals("loop {")) {
-				inLoop = true;
-				currentLoopNode = new LoopNode(new BlockNode(new ArrayList<>()));
-			}
-			if (d.equals("}") || !d.contains("	")) {
-				inLoop = false;
-				LoopNode temp = currentLoopNode;
-				commands.add(temp);
-				currentLoopNode = null;
-			}
+		List<RobotProgramNode> statement = new ArrayList<>();
+		while (s.hasNext()) {
+			statement.add(parseStatement(s));
 		}
-		return new BlockNode(commands);
+		return new BlockNode(statement);
+	}
+
+	private static RobotProgramNode parseStatement(Scanner s) {
+		String token = s.next();
+		System.out.println(token);
+		if (token.contains("loop")) {
+			return parseLoop(s);
+		}
+		return parseAction(token, s);
+	}
+
+	private static RobotProgramNode parseLoop(Scanner s) {
+		List<RobotProgramNode> block = new ArrayList<>();
+		String token = s.next();
+		while (!token.equals("}") && s.hasNext()) {
+			block.add(parseStatement(s));
+			token = s.next();
+		}
+		if (!token.equals("}")) {
+			fail("Missing closing bracket", s);
+		}
+		return new LoopNode(new BlockNode(block));
+	}
+
+	static RobotProgramNode parseAction(String token, Scanner s) {
+		if (token.contains("turnL")) {
+			return new TurnNode(false);
+		}
+		if (token.contains("turnR")) {
+			return new TurnNode(true);
+		}
+		if (token.contains("move")) {
+			return new MoveNode();
+		}
+		if (token.contains("takeFuel")) {
+			return new TakeFuelNode();
+		}
+		if (token.contains("wait")) {
+			return new WaitNode();
+		}
+		fail("Unable to find an action / statement to parse", s);
+		return null;
 	}
 
 	// utility methods for the parser
@@ -218,4 +218,5 @@ public class Parser {
 
 }
 
-// You could add the node classes here, as long as they are not declared public (or private)
+// You could add the node classes here, as long as they are not declared public
+// (or private)
