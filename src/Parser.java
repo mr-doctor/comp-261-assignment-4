@@ -98,8 +98,8 @@ public class Parser {
 
 	private static RobotProgramNode parseStatement(Scanner s) {
 		String token = s.next();
-		if (token.contains("loop{")) {
-			System.out.println("hon" + s.next());
+		if (token.contains("loop")) {
+			s.next();
 			return parseLoop(s);
 		}
 		return parseAction(token, s);
@@ -108,12 +108,11 @@ public class Parser {
 	private static RobotProgramNode parseLoop(Scanner s) {
 		List<RobotProgramNode> block = new ArrayList<>();
 		String token = s.next();
-		token = s.next();
 		while (!token.equals("}") && s.hasNext()) {
-			System.out.println("	" + token);
+			System.out.print("	");
+			token = s.next();
 			block.add(parseStatement(s));
 			
-			token = s.next();
 		}
 		if (!token.equals("}")) {
 			fail("Missing closing bracket", s);
@@ -122,9 +121,11 @@ public class Parser {
 	}
 
 	static RobotProgramNode parseAction(String token, Scanner s) {
-		String temp = s.next();
-		System.out.println(token + temp);
-		if (!temp.equals(";") && !temp.equals("{")) {
+		String temp = "";
+		if (s.hasNext()) {
+			temp = s.next();
+		}
+		if (!temp.equals(";")) {
 			fail("Action missing semicolon", s);
 		}
 		System.out.println(token);
