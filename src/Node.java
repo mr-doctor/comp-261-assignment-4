@@ -2,7 +2,6 @@
 public abstract class Node implements RobotProgramNode {
 	
 	public Node() {
-		
 	}
 	
 	public abstract String toString();

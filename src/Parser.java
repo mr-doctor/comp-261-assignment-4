@@ -33,6 +33,8 @@ public class Parser {
 			System.out.println("Parser error:");
 			System.out.println(e.getMessage());
 			scan.close();
+		} catch (NoSuchElementException e) {
+			System.out.println("Unexpected end of file");
 		}
 		return null;
 	}
@@ -98,54 +100,77 @@ public class Parser {
 
 	private static RobotProgramNode parseStatement(Scanner s) {
 		String token = s.next();
-		if (token.contains("loop")) {
-			s.next();
-			return parseLoop(s);
+		switch ("token") {
+			case ("loop"):
+				return parseLoop(s);
+		case ("if"):
+				return parseIf(s);
+			case("while"):
+				return parseWhile(s);
 		}
 		return parseAction(token, s);
 	}
 
+	private static RobotProgramNode parseWhile(Scanner s) {
+		return null;
+	}
+
+	private static RobotProgramNode parseIf(Scanner s) {
+		boolean condition = parseCondition(s);
+		
+		return null;
+	}
+
+	private static boolean parseCondition(Scanner s) {
+		
+		return false;
+	}
+
 	private static RobotProgramNode parseLoop(Scanner s) {
 		List<RobotProgramNode> block = new ArrayList<>();
-		String token = s.next();
-		while (!token.equals("}") && s.hasNext()) {
-			System.out.print("	");
-			token = s.next();
+		s.next();
+		while (!checkFor(CLOSEBRACE, s)) {
 			block.add(parseStatement(s));
-			
 		}
-		if (!token.equals("}")) {
-			fail("Missing closing bracket", s);
+		if (block.size() <= 0) {
+			fail("Requires at least one statement in block", s);
 		}
 		return new LoopNode(new BlockNode(block));
 	}
-
+	
 	static RobotProgramNode parseAction(String token, Scanner s) {
-		String temp = "";
-		if (s.hasNext()) {
-			temp = s.next();
+		RobotProgramNode node = null;
+		switch (token) {
+			case ("turnL"):
+				node = new TurnNode(-1);
+				break;
+			case ("turnR"):
+				node = new TurnNode(1);
+				break;
+			case("turnAround"):
+				node = new TurnNode(2);
+				break;
+			case ("move"):
+				node = new MoveNode();
+				break;
+			case ("takeFuel"):
+				node = new TakeFuelNode();
+				break;
+			case ("wait"):
+				node = new WaitNode();
+				break;
+			case ("shieldOn"):
+				node = new ShieldNode(true);
+				break;
+			case("shieldOff"):
+				node = new ShieldNode(false);
+				break;
+			default:
+				fail("Unknown command", s);
+				break;
 		}
-		if (!temp.equals(";")) {
-			fail("Action missing semicolon", s);
-		}
-		System.out.println(token);
-		if (token.contains("turnL")) {
-			return new TurnNode(false);
-		}
-		if (token.contains("turnR")) {
-			return new TurnNode(true);
-		}
-		if (token.contains("move")) {
-			return new MoveNode();
-		}
-		if (token.contains("takeFuel")) {
-			return new TakeFuelNode();
-		}
-		if (token.contains("wait")) {
-			return new WaitNode();
-		}
-		fail("Unable to find an action / statement to parse", s);
-		return null;
+		require(";", "No semicolon found where expected", s);
+		return node;
 	}
 
 	// utility methods for the parser
