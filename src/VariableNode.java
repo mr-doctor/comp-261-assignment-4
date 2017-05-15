@@ -32,7 +32,7 @@ public class VariableNode extends Node {
 		if (this.valueString == null) {
 			return Integer.parseInt(this.valueInt);
 		} else if (this.valueInt == null) {
-			return this.valueString;
+			return this.valueString.toString();
 		}
 		throw new NullPointerException("Variable has no value");
 	}
