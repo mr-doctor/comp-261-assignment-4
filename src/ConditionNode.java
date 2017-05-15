@@ -8,13 +8,13 @@ public class ConditionNode extends Node {
 	public ConditionNode(String op, VariableNode v1, VariableNode v2) throws IllegalArgumentException {
 		this.operator = op;
 		if (!(op.equals("lt") || op.equals("gt") || op.equals("eq"))) {
-			throw new IllegalArgumentException("Invalid condition");
+			throw new IllegalArgumentException("Invalid operator");
 		}
 		if (v1.isString() != v2.isString()) {
-			throw new IllegalArgumentException("Inconsistent variable type");
+			throw new IllegalArgumentException("Inconsistent variable type: cannot compare String and Integer");
 		}
 		if (v1.isString() && (op.equals("lt") || op.equals("gt"))) {
-			throw new IllegalArgumentException("Invalid condition for String");
+			throw new IllegalArgumentException("Invalid operator for String");
 		}
 		this.v1 = v1;
 		this.v2 = v2;
