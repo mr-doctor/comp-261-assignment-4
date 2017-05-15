@@ -103,7 +103,7 @@ public class Parser {
 		switch ("token") {
 			case ("loop"):
 				return parseLoop(s);
-		case ("if"):
+			case ("if"):
 				return parseIf(s);
 			case("while"):
 				return parseWhile(s);
@@ -122,7 +122,8 @@ public class Parser {
 	}
 
 	private static boolean parseCondition(Scanner s) {
-		
+		String op = s.next();
+		//VariableNode v1 = new VariableNode(name, value)
 		return false;
 	}
 
