@@ -100,7 +100,7 @@ public class Parser {
 
 	private static RobotProgramNode parseStatement(Scanner s) {
 		String token = s.next();
-		switch ("token") {
+		switch (token) {
 			case ("loop"):
 				return parseLoop(s);
 			case ("if"):
@@ -112,19 +112,72 @@ public class Parser {
 	}
 
 	private static RobotProgramNode parseWhile(Scanner s) {
-		return null;
+		List<RobotProgramNode> block = new ArrayList<>();
+		ConditionNode condition = parseCondition(s);
+		while (!checkFor(CLOSEBRACE, s)) {
+			block.add(parseStatement(s));
+		}
+		if (block.size() <= 0) {
+			fail("Requires at least one statement in block", s);
+		}
+		return new WhileNode(new BlockNode(block), condition);
 	}
 
 	private static RobotProgramNode parseIf(Scanner s) {
-		boolean condition = parseCondition(s);
-		
-		return null;
+		List<RobotProgramNode> block = new ArrayList<>();
+		ConditionNode condition = parseCondition(s);
+		while (!checkFor(CLOSEBRACE, s)) {
+			block.add(parseStatement(s));
+		}
+		if (block.size() <= 0) {
+			fail("Requires at least one statement in block", s);
+		}
+		return new IfNode(new BlockNode(block), condition);
 	}
 
-	private static boolean parseCondition(Scanner s) {
+	private static ConditionNode parseCondition(Scanner s) {
+		if (!checkFor(OPENPAREN, s)) {
+			fail("Expected open parenthesis", s);
+		}
 		String op = s.next();
-		//VariableNode v1 = new VariableNode(name, value)
-		return false;
+		if (!checkFor(OPENPAREN, s)) {
+			fail("Expected open parenthesis", s);
+		}
+		String foo = s.next();
+		if (!checkFor(",", s)) {
+			fail("Expected comma", s);
+		}
+		String bar = s.next();
+		System.out.println(foo + ", " + bar);
+		VariableNode v1 = parseVariable(foo);
+		VariableNode v2 = parseVariable(bar);
+		
+		if (!checkFor(CLOSEPAREN, s)) {
+			fail("Expected closed parenthesis", s);
+		}
+		if (!checkFor(CLOSEPAREN, s)) {
+			fail("Expected closed parenthesis", s);
+		}
+		return new ConditionNode(op, v1, v2);
+	}
+	
+	private static VariableNode parseVariable(String s) {
+		switch (s) {
+			case ("fuelLeft"):
+				return new VariableNode("fuelLeft", 0);
+			case ("oppLR"):
+				return new VariableNode("oppLR", 0);
+			case ("oppFB"):
+				return new VariableNode("oppFB", 0);
+			case ("barrelLR"):
+				return new VariableNode("barrelLR", 0);
+			case ("barrelFB"):
+				return new VariableNode("barrelFB", 0);
+			case ("numBarrels"):
+				return new VariableNode("numBarrels", 0);
+			default:
+				return new VariableNode(s, Integer.parseInt(s));
+		}
 	}
 
 	private static RobotProgramNode parseLoop(Scanner s) {
@@ -167,7 +220,7 @@ public class Parser {
 				node = new ShieldNode(false);
 				break;
 			default:
-				fail("Unknown command", s);
+				fail("Unknown command: " + token, s);
 				break;
 		}
 		require(";", "No semicolon found where expected", s);

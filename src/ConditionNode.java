@@ -50,4 +50,30 @@ public class ConditionNode extends Node {
 		return false;
 	}
 
+	public void initialise(Robot r) {
+		switch (v1.toString()) {
+			case ("fuelLeft"):
+				v1.setValue(r.getFuel());
+				break;
+			case ("oppLR"):
+				v1.setValue(r.getOpponentLR());
+				break;
+			case ("oppFB"):
+				v1.setValue(r.getOpponentFB());
+				break;
+			case ("barrelLR"):
+				v1.setValue(r.getClosestBarrelLR());
+				break;
+			case ("barrelFB"):
+				v1.setValue(r.getClosestBarrelFB());
+				break;
+			case ("numBarrels"):
+				v1.setValue(r.numBarrels());
+				break;
+			case ("wallDist"):
+				v1.setValue(r.getDistanceToWall());
+				break;
+		}
+	}
+
 }

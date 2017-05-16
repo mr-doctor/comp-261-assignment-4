@@ -10,7 +10,7 @@ public class VariableNode extends Node {
 		this.valueString = value;
 	}
 	
-	public  VariableNode(String name, int value) {
+	public VariableNode(String name, int value) {
 		this.name = name;
 		this.valueInt = value + "";
 	}
@@ -22,6 +22,7 @@ public class VariableNode extends Node {
 
 	@Override
 	public void execute(Robot r) {
+		
 	}
 	
 	public boolean isString() {

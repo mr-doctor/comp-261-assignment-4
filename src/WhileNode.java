@@ -1,28 +1,29 @@
 
-public class IfNode extends Node {
+public class WhileNode extends Node implements RobotProgramNode {
 
 	private BlockNode block;
 	private ConditionNode condition;
-
-	public IfNode(BlockNode block, ConditionNode con) {
+	
+	public WhileNode(BlockNode block, ConditionNode con) {
 		this.block = block;
 		this.condition = con;
 	}
-
+	
 	@Override
 	public String toString() {
-		String s = "if (" + this.condition + ") {\n";
+		String s = "while (" + this.condition + ") {\n";
 		for (RobotProgramNode n : this.block.getComponents()) {
 			s += "	" + n.toString() + "\n";
 		}
 		s += "}\n";
 		return s;
 	}
-
+	
 	@Override
 	public void execute(Robot r) {
 		this.condition.initialise(r);
-		if (this.condition.holds()) {
+		while (this.condition.holds()) {
+			this.condition.initialise(r);
 			for (RobotProgramNode n : this.block.getComponents()) {
 				n.execute(r);
 			}
