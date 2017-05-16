@@ -113,7 +113,17 @@ public class Parser {
 
 	private static RobotProgramNode parseWhile(Scanner s) {
 		List<RobotProgramNode> block = new ArrayList<>();
+
+		if (!checkFor(OPENPAREN, s)) {
+			fail("Expected open parenthesis", s);
+		}
 		ConditionNode condition = parseCondition(s);
+		if (!checkFor(CLOSEPAREN, s)) {
+			fail("Expected closed parenthesis", s);
+		}
+		if (!checkFor(OPENBRACE, s)) {
+			fail("Expected open brace", s);
+		}
 		while (!checkFor(CLOSEBRACE, s)) {
 			block.add(parseStatement(s));
 		}
@@ -125,7 +135,17 @@ public class Parser {
 
 	private static RobotProgramNode parseIf(Scanner s) {
 		List<RobotProgramNode> block = new ArrayList<>();
+
+		if (!checkFor(OPENPAREN, s)) {
+			fail("Expected open parenthesis", s);
+		}
 		ConditionNode condition = parseCondition(s);
+		if (!checkFor(CLOSEPAREN, s)) {
+			fail("Expected closed parenthesis", s);
+		}
+		if (!checkFor(OPENBRACE, s)) {
+			fail("Expected open brace", s);
+		}
 		while (!checkFor(CLOSEBRACE, s)) {
 			block.add(parseStatement(s));
 		}
@@ -136,33 +156,23 @@ public class Parser {
 	}
 
 	private static ConditionNode parseCondition(Scanner s) {
-		if (!checkFor(OPENPAREN, s)) {
-			fail("Expected open parenthesis", s);
-		}
 		String op = s.next();
 		if (!checkFor(OPENPAREN, s)) {
 			fail("Expected open parenthesis", s);
 		}
-		String foo = s.next();
+		VariableNode v1 = parseVariable(s.next(), s);
 		if (!checkFor(",", s)) {
 			fail("Expected comma", s);
 		}
-		String bar = s.next();
-		System.out.println(foo + ", " + bar);
-		VariableNode v1 = parseVariable(foo);
-		VariableNode v2 = parseVariable(bar);
-		
-		if (!checkFor(CLOSEPAREN, s)) {
-			fail("Expected closed parenthesis", s);
-		}
+		VariableNode v2 = parseVariable(s.next(), s);
 		if (!checkFor(CLOSEPAREN, s)) {
 			fail("Expected closed parenthesis", s);
 		}
 		return new ConditionNode(op, v1, v2);
 	}
 	
-	private static VariableNode parseVariable(String s) {
-		switch (s) {
+	private static VariableNode parseVariable(String str, Scanner s) {
+		switch (str) {
 			case ("fuelLeft"):
 				return new VariableNode("fuelLeft", 0);
 			case ("oppLR"):
@@ -175,8 +185,14 @@ public class Parser {
 				return new VariableNode("barrelFB", 0);
 			case ("numBarrels"):
 				return new VariableNode("numBarrels", 0);
+			case ("wallDist"):
+				return new VariableNode("wallDist", 0);
 			default:
-				return new VariableNode(s, Integer.parseInt(s));
+				if (isInteger(str)) {
+					return new VariableNode(str, Integer.parseInt(str));
+				}
+				fail("Invalid variable", s);
+				return null;
 		}
 	}
 
@@ -226,7 +242,7 @@ public class Parser {
 		require(";", "No semicolon found where expected", s);
 		return node;
 	}
-
+	
 	// utility methods for the parser
 
 	/**
@@ -238,6 +254,31 @@ public class Parser {
 			msg += " " + s.next();
 		}
 		throw new ParserFailureException(msg + "...");
+	}
+
+	// helper function taken from http://stackoverflow.com/questions/237159/whats-the-best-way-to-check-to-see-if-a-string-represents-an-integer-in-java
+	public static boolean isInteger(String str) {
+		if (str == null) {
+			return false;
+		}
+		int length = str.length();
+		if (length == 0) {
+			return false;
+		}
+		int i = 0;
+		if (str.charAt(0) == '-') {
+			if (length == 1) {
+				return false;
+			}
+			i = 1;
+		}
+		for (; i < length; i++) {
+			char c = str.charAt(i);
+			if (c < '0' || c > '9') {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

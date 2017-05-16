@@ -2,8 +2,8 @@
 public class ConditionNode extends Node {
 
 	private String operator;
-	private VariableNode v1;
-	private VariableNode v2;
+	public VariableNode v1;
+	public VariableNode v2;
 	
 	public ConditionNode(String op, VariableNode v1, VariableNode v2) throws IllegalArgumentException {
 		this.operator = op;
@@ -75,5 +75,4 @@ public class ConditionNode extends Node {
 				break;
 		}
 	}
-
 }
