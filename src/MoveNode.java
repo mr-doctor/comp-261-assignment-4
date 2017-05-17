@@ -1,8 +1,10 @@
 
 public class MoveNode extends Node {
+	
+	int amount;
 
-	public MoveNode() {
-		
+	public MoveNode(int amount) {
+		this.amount = amount;
 	}
 
 	@Override
@@ -12,7 +14,9 @@ public class MoveNode extends Node {
 
 	@Override
 	public void execute(Robot r) {
-		r.move();
+		for (int i=0; i<amount; i++) {
+			r.move();
+		}
 	}
 
 }

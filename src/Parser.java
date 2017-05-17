@@ -130,6 +130,9 @@ public class Parser {
 		if (block.size() <= 0) {
 			fail("Requires at least one statement in block", s);
 		}
+		if (condition.v1.getName().equals(condition.v2.getName())) {
+			fail("Infinite loop", s);
+		}
 		return new WhileNode(new BlockNode(block), condition);
 	}
 
@@ -168,28 +171,31 @@ public class Parser {
 		if (!checkFor(CLOSEPAREN, s)) {
 			fail("Expected closed parenthesis", s);
 		}
+		if (v1.isRobotVariable() == v2.isRobotVariable()) {
+			fail("Cannot compare two robot variables", s);
+		}
 		return new ConditionNode(op, v1, v2);
 	}
 	
 	private static VariableNode parseVariable(String str, Scanner s) {
 		switch (str) {
 			case ("fuelLeft"):
-				return new VariableNode("fuelLeft", 0);
+				return new VariableNode("fuelLeft", 0, true);
 			case ("oppLR"):
-				return new VariableNode("oppLR", 0);
+				return new VariableNode("oppLR", 0, true);
 			case ("oppFB"):
-				return new VariableNode("oppFB", 0);
+				return new VariableNode("oppFB", 0, true);
 			case ("barrelLR"):
-				return new VariableNode("barrelLR", 0);
+				return new VariableNode("barrelLR", 0, true);
 			case ("barrelFB"):
-				return new VariableNode("barrelFB", 0);
+				return new VariableNode("barrelFB", 0, true);
 			case ("numBarrels"):
-				return new VariableNode("numBarrels", 0);
+				return new VariableNode("numBarrels", 0, true);
 			case ("wallDist"):
-				return new VariableNode("wallDist", 0);
+				return new VariableNode("wallDist", 0, true);
 			default:
 				if (isInteger(str)) {
-					return new VariableNode(str, Integer.parseInt(str));
+					return new VariableNode(str, Integer.parseInt(str), false);
 				}
 				fail("Invalid variable", s);
 				return null;
@@ -221,7 +227,7 @@ public class Parser {
 				node = new TurnNode(2);
 				break;
 			case ("move"):
-				node = new MoveNode();
+				node = parseMove(s);
 				break;
 			case ("takeFuel"):
 				node = new TakeFuelNode();
@@ -241,6 +247,30 @@ public class Parser {
 		}
 		require(";", "No semicolon found where expected", s);
 		return node;
+	}
+	
+	private static RobotProgramNode parseMove(Scanner s) {
+		if (checkFor(OPENPAREN, s)) {
+			
+		}
+		
+		return new MoveNode(1);
+	}
+	
+	private static RobotProgramNode parseExpression(Scanner s) {
+		String token = s.next();
+		switch(token) {
+			case("add"):
+				
+			case("sub"):
+				
+			case("mul"):
+				
+			case("div"):
+				
+		}
+		
+		return null;
 	}
 	
 	// utility methods for the parser

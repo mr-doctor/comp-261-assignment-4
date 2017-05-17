@@ -5,6 +5,9 @@ public class ConditionNode extends Node {
 	public VariableNode v1;
 	public VariableNode v2;
 	
+	public ConditionNode c1;
+	public ConditionNode c2;
+	
 	public ConditionNode(String op, VariableNode v1, VariableNode v2) throws IllegalArgumentException {
 		this.operator = op;
 		if (!(op.equals("lt") || op.equals("gt") || op.equals("eq"))) {
@@ -18,6 +21,19 @@ public class ConditionNode extends Node {
 		}
 		this.v1 = v1;
 		this.v2 = v2;
+	}
+	
+	public ConditionNode(String op, ConditionNode c1, ConditionNode c2) throws IllegalArgumentException {
+		this.operator = op;
+		if (c2 == null && !op.equals("not")) {
+			throw new IllegalArgumentException("Cannot perform operation on a single condition");
+		}
+		if (c2 != null && op.equals("not")) {
+			throw new IllegalArgumentException("Cannot negate two conditions");
+		}
+		
+		this.c1 = c1;
+		this.c2 = c2;
 	}
 
 	@Override
@@ -37,6 +53,13 @@ public class ConditionNode extends Node {
 	}
 	
 	public boolean holds() {
+		if (v1 != null) {
+			return holdsVariable();
+		}
+		return holdsConditions();
+	}
+	
+	private boolean holdsVariable() {
 		if (v1.isString()) {
 			return v1.getValue().equals(v2.getValue());
 		}
@@ -49,9 +72,21 @@ public class ConditionNode extends Node {
 		}
 		return false;
 	}
+	
+	private boolean holdsConditions() {
+		if (c2 != null) {
+			switch (operator) {
+				case("and"):
+					return c1.holds() && c2.holds();
+				case("or"):
+					return c1.holds() || c2.holds();
+			}
+		}
+		return !c1.holds();
+	}
 
 	public void initialise(Robot r) {
-		switch (v1.toString()) {
+		switch (v1.getName()) {
 			case ("fuelLeft"):
 				v1.setValue(r.getFuel());
 				break;

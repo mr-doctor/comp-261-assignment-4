@@ -22,11 +22,6 @@ public class WhileNode extends Node implements RobotProgramNode {
 	@Override
 	public void execute(Robot r) {
 		this.condition.initialise(r);
-		System.out.println(this.condition.v1.getValue());
-		System.out.println(this.condition.v2.getValue());
-		if (!this.condition.v1.isString() && this.condition.v1.getValue() == this.condition.v2.getValue()) {
-			throw new StackOverflowError("Infinite loop");
-		}
 		while (this.condition.holds()) {
 			this.condition.initialise(r);
 			for (RobotProgramNode n : this.block.getComponents()) {
