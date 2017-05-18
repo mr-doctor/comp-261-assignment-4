@@ -104,7 +104,7 @@ public class Parser {
 			case ("loop"):
 				return parseLoop(s);
 			case ("if"):
-				return parseIf(s);
+				return parseIf(s, null, true);
 			case("while"):
 				return parseWhile(s);
 		}
@@ -136,15 +136,17 @@ public class Parser {
 		return new WhileNode(new BlockNode(block), condition);
 	}
 
-	private static RobotProgramNode parseIf(Scanner s) {
+	private static IfNode parseIf(Scanner s, IfNode parentIf, boolean hasCond) {
 		List<RobotProgramNode> block = new ArrayList<>();
-
-		if (!checkFor(OPENPAREN, s)) {
-			fail("Expected open parenthesis", s);
-		}
-		ConditionNode condition = parseCondition(s);
-		if (!checkFor(CLOSEPAREN, s)) {
-			fail("Expected closed parenthesis", s);
+		ConditionNode condition = null;
+		if (hasCond) {
+			if (!checkFor(OPENPAREN, s)) {
+				fail("Expected open parenthesis", s);
+			}
+			condition = parseCondition(s);
+			if (!checkFor(CLOSEPAREN, s)) {
+				fail("Expected closed parenthesis", s);
+			}
 		}
 		if (!checkFor(OPENBRACE, s)) {
 			fail("Expected open brace", s);
@@ -155,13 +157,67 @@ public class Parser {
 		if (block.size() <= 0) {
 			fail("Requires at least one statement in block", s);
 		}
-		return new IfNode(new BlockNode(block), condition);
+		IfNode n = new IfNode(new BlockNode(block), condition);
+		if (s.hasNext("else if")) {
+			s.next();
+			if (parentIf == null) {
+				n.elses.add(parseIf(s, n, true));
+			} else {
+				parentIf.elses.add(parseIf(s, parentIf, true));
+			}
+		} else if (s.hasNext("else")) {
+			n.elses.add(parseElse(s));
+		}
+		return n;
 	}
-
+	
+	private static IfNode parseElse(Scanner s) {
+		List<RobotProgramNode> block = new ArrayList<>();
+		System.out.println(s.next());
+		
+		if (!checkFor(OPENBRACE, s)) {
+			fail("Expected open brace", s);
+		}
+		while (!checkFor(CLOSEBRACE, s)) {
+			block.add(parseStatement(s));
+		}
+		if (block.size() <= 0) {
+			fail("Requires at least one statement in block", s);
+		}
+		/*IfNode n = new IfNode(new BlockNode(block), null);
+		n.elses.add(parseIf(s, n, false));*/
+		// TODO: need to determine if there is a condition or not
+		return new IfNode(new BlockNode(block), null);
+	}
+	
 	private static ConditionNode parseCondition(Scanner s) {
 		String op = s.next();
 		if (!checkFor(OPENPAREN, s)) {
 			fail("Expected open parenthesis", s);
+		}
+		switch(op) {
+			case("lt"):
+				break;
+			case("gt"):
+				break;
+			case("eq"):
+				break;
+			case("not"):
+				ConditionNode c = new ConditionNode(op, parseCondition(s), null);
+				if (!checkFor(CLOSEPAREN, s)) {
+					fail("Expected closed parenthesis", s);
+				}
+				return c;
+			default:
+				ConditionNode c1 = parseCondition(s);
+				if (!checkFor(",", s)) {
+					fail("Expected comma", s);
+				}
+				ConditionNode c2 = parseCondition(s);
+				if (!checkFor(CLOSEPAREN, s)) {
+					fail("Expected closed parenthesis", s);
+				}
+				return new ConditionNode(op, c1, c2);
 		}
 		VariableNode v1 = parseVariable(s.next(), s);
 		if (!checkFor(",", s)) {
@@ -171,8 +227,11 @@ public class Parser {
 		if (!checkFor(CLOSEPAREN, s)) {
 			fail("Expected closed parenthesis", s);
 		}
-		if (v1.isRobotVariable() == v2.isRobotVariable()) {
+		if (v1.isRobotVariable() && v2.isRobotVariable()) {
 			fail("Cannot compare two robot variables", s);
+		}
+		if (v1.toString().equals(v2.toString())) {
+			fail("Condition is always true", s);
 		}
 		return new ConditionNode(op, v1, v2);
 	}
@@ -196,6 +255,22 @@ public class Parser {
 			default:
 				if (isInteger(str)) {
 					return new VariableNode(str, Integer.parseInt(str), false);
+				}
+				if (str.equals("add") || str.equals("mul") || str.equals("div") || str.equals("sub")) {
+					if (!checkFor(OPENPAREN, s)) {
+						fail("Requires arguments", s);
+					}
+					VariableNode v1 = parseVariable(s.next(), s);
+					if (!checkFor(",", s)) {
+						fail("Requires two arguments", s);
+					}
+					VariableNode v2 = parseVariable(s.next(), s);
+					
+					VariableNode v = new VariableNode(str, v1, v2);
+					if (!checkFor(CLOSEPAREN, s)) {
+						fail("Requires closing parenthesis", s);
+					}
+					return v;
 				}
 				fail("Invalid variable", s);
 				return null;
@@ -233,7 +308,7 @@ public class Parser {
 				node = new TakeFuelNode();
 				break;
 			case ("wait"):
-				node = new WaitNode();
+				node = parseWait(s);
 				break;
 			case ("shieldOn"):
 				node = new ShieldNode(true);
@@ -251,26 +326,55 @@ public class Parser {
 	
 	private static RobotProgramNode parseMove(Scanner s) {
 		if (checkFor(OPENPAREN, s)) {
-			
+			int amount = (Integer) parseExpression(s).getValue();
+			MoveNode m = new MoveNode(amount);
+			if (checkFor(CLOSEPAREN, s)) {
+				fail("Requires close parenthesis", s);
+			}
+			return m;
 		}
-		
 		return new MoveNode(1);
 	}
 	
-	private static RobotProgramNode parseExpression(Scanner s) {
+	private static RobotProgramNode parseWait(Scanner s) {
+		if (checkFor(OPENPAREN, s)) {
+			int amount = (Integer) parseExpression(s).getValue();
+			WaitNode w = new WaitNode(amount);
+			if (checkFor(CLOSEPAREN, s)) {
+				fail("Requires close parenthesis", s);
+			}
+			return w;
+		}
+		return new WaitNode(1);
+	}
+	
+	private static VariableNode parseExpression(Scanner s) {
 		String token = s.next();
 		switch(token) {
 			case("add"):
-				
+				break;
 			case("sub"):
-				
+				break;
 			case("mul"):
-				
+				break;
 			case("div"):
-				
+				break;
+			default:
+				return parseVariable(token, s);
 		}
 		
-		return null;
+		if (!checkFor(OPENPAREN, s)) {
+			fail("Expression has no arguments", s);
+		}
+		VariableNode v1 = parseExpression(s);
+		if (!checkFor(",", s)) {
+			fail("Requires comma", s);
+		}
+		VariableNode v2 = parseExpression(s);
+		if (!checkFor(CLOSEPAREN, s)) {
+			fail("Requires closed parenthesis", s);
+		}
+		return new VariableNode(token, v1, v2);
 	}
 	
 	// utility methods for the parser
@@ -280,7 +384,7 @@ public class Parser {
 	 */
 	static void fail(String message, Scanner s) {
 		String msg = message + "\n   @ ...";
-		for (int i = 0; i < 5 && s.hasNext(); i++) {
+		for (int i = 0; i < 20 && s.hasNext(); i++) {
 			msg += " " + s.next();
 		}
 		throw new ParserFailureException(msg + "...");
