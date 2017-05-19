@@ -1,5 +1,5 @@
 
-public class ConditionNode extends Node {
+public class ConditionNode {
 
 	private String operator;
 	public VariableNode v1;
@@ -48,10 +48,6 @@ public class ConditionNode extends Node {
 		return null;
 	}
 
-	@Override
-	public void execute(Robot r) {
-	}
-	
 	public boolean holds() {
 		if (v1 != null) {
 			return holdsVariable();

@@ -1,5 +1,5 @@
 
-public class VariableNode extends Node {
+public class VariableNode {
 	
 	private String name;
 	private String valueString;
@@ -44,10 +44,6 @@ public class VariableNode extends Node {
 		return name;
 	}
 
-	@Override
-	public void execute(Robot r) {
-	}
-	
 	public boolean isString() {
 		return this.valueString != null;
 	}

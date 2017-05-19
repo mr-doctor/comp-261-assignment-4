@@ -21,14 +21,8 @@ public class WaitNode extends Node {
 
 	@Override
 	public void execute(Robot r) {
-		try {
-			if (millis != 0) {
-				r.wait(millis);
-			} else {
-				r.wait();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		for (int i=0; i<millis; i++) {
+			r.idleWait();
 		}
 	}
 

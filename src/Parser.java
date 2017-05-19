@@ -173,7 +173,7 @@ public class Parser {
 	
 	private static IfNode parseElse(Scanner s) {
 		List<RobotProgramNode> block = new ArrayList<>();
-		System.out.println(s.next());
+		s.next();
 		
 		if (!checkFor(OPENBRACE, s)) {
 			fail("Expected open brace", s);
@@ -184,9 +184,6 @@ public class Parser {
 		if (block.size() <= 0) {
 			fail("Requires at least one statement in block", s);
 		}
-		/*IfNode n = new IfNode(new BlockNode(block), null);
-		n.elses.add(parseIf(s, n, false));*/
-		// TODO: need to determine if there is a condition or not
 		return new IfNode(new BlockNode(block), null);
 	}
 	
@@ -272,9 +269,9 @@ public class Parser {
 					}
 					return v;
 				}
-				fail("Invalid variable", s);
-				return null;
 		}
+		fail("Invalid variable", s);
+		return null;
 	}
 
 	private static RobotProgramNode parseLoop(Scanner s) {
@@ -326,7 +323,7 @@ public class Parser {
 	
 	private static RobotProgramNode parseMove(Scanner s) {
 		if (checkFor(OPENPAREN, s)) {
-			int amount = (Integer) parseExpression(s).getValue();
+			int amount = (int) parseExpression(s).getValue();
 			MoveNode m = new MoveNode(amount);
 			if (checkFor(CLOSEPAREN, s)) {
 				fail("Requires close parenthesis", s);
@@ -338,7 +335,7 @@ public class Parser {
 	
 	private static RobotProgramNode parseWait(Scanner s) {
 		if (checkFor(OPENPAREN, s)) {
-			int amount = (Integer) parseExpression(s).getValue();
+			int amount = (int) parseExpression(s).getValue();
 			WaitNode w = new WaitNode(amount);
 			if (checkFor(CLOSEPAREN, s)) {
 				fail("Requires close parenthesis", s);
