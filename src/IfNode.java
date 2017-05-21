@@ -21,18 +21,17 @@ public class IfNode extends Node {
 		} else {
 			s = "if (" + this.condition + ") {\n";
 		}
+		
 		for (RobotProgramNode n : this.block.getComponents()) {
-			s += "	" + n.toString() + "\n";
+			s += n.toString() + "\n";
 		}
+		
 		if (this.elses.isEmpty()) {
 			s += "}\n";
 		} else {
+			s += "} ";
 			for (int i=0; i<this.elses.size(); i++) {
-				if (i == this.elses.size() - 1) {
-					s += "}\n";
-				} else {
-					s += "} else " + this.elses.get(i).toString();
-				}
+				s += this.elses.get(i).toString();
 			}
 		}
 		return s;
@@ -46,9 +45,12 @@ public class IfNode extends Node {
 				for (RobotProgramNode n : this.block.getComponents()) {
 					n.execute(r);
 				}
-			}
-			for (IfNode n : elses) {
-				n.execute(r);
+			} else {
+				for (IfNode n : elses) {
+					for (RobotProgramNode n2 : n.block.getComponents()) {
+						n2.execute(r);
+					}
+				}
 			}
 		} else {
 			for (RobotProgramNode n : this.block.getComponents()) {

@@ -130,8 +130,10 @@ public class Parser {
 		if (block.size() <= 0) {
 			fail("Requires at least one statement in block", s);
 		}
-		if (condition.v1.getName().equals(condition.v2.getName())) {
-			fail("Infinite loop", s);
+		if (condition.v1 != null) {
+			if (condition.v1.getName().equals(condition.v2.getName())) {
+				fail("Infinite loop", s);
+			}
 		}
 		return new WhileNode(new BlockNode(block), condition);
 	}
@@ -324,9 +326,9 @@ public class Parser {
 	private static RobotProgramNode parseMove(Scanner s) {
 		if (checkFor(OPENPAREN, s)) {
 			int amount = (int) parseExpression(s).getValue();
-			MoveNode m = new MoveNode(amount);
-			if (checkFor(CLOSEPAREN, s)) {
-				fail("Requires close parenthesis", s);
+			MoveNode m = new MoveNode(Math.max(amount, 1));
+			if (!checkFor(CLOSEPAREN, s)) {
+				fail("Requires close parenthesis in move", s);
 			}
 			return m;
 		}
@@ -337,8 +339,8 @@ public class Parser {
 		if (checkFor(OPENPAREN, s)) {
 			int amount = (int) parseExpression(s).getValue();
 			WaitNode w = new WaitNode(amount);
-			if (checkFor(CLOSEPAREN, s)) {
-				fail("Requires close parenthesis", s);
+			if (!checkFor(CLOSEPAREN, s)) {
+				fail("Requires close parenthesis in wait", s);
 			}
 			return w;
 		}

@@ -13,7 +13,7 @@ public class WhileNode extends Node implements RobotProgramNode {
 	public String toString() {
 		String s = "while (" + this.condition + ") {\n";
 		for (RobotProgramNode n : this.block.getComponents()) {
-			s += "	" + n.toString() + "\n";
+			s += n.toString() + "\n";
 		}
 		s += "}\n";
 		return s;

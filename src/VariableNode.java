@@ -32,13 +32,13 @@ public class VariableNode {
 		if (this.v1 != null) {
 			switch (this.operator) {
 	            case ("add"):
-	                return v1.toString() + " + " + v2.toString();
+	                return "(" + v1.toString() + " + " + v2.toString() + ")";
 	            case ("sub"):
-	                return v1.toString() + " - " + v2.toString();
+	                return "(" + v1.toString() + " - " + v2.toString() + ")";
 	            case ("mul"):
-	                return v1.toString() + " * " + v2.toString();
+	                return "(" + v1.toString() + " * " + v2.toString() + ")";
 	            case ("div"):
-	                return v1.toString() + " / " + v2.toString();
+	                return "(" + v1.toString() + " / " + v2.toString() + ")";
 	        }
 		}
 		return name;
@@ -53,7 +53,7 @@ public class VariableNode {
 	}
 	
 	public Object getValue() throws NullPointerException {
-		if (this.v1 != null) {
+		if (this.v1 != null && this.v2 != null) {
 			return this.evaluate();
 		}
 		if (this.valueString == null) {
@@ -85,13 +85,13 @@ public class VariableNode {
 	private int evaluate() {
 		switch(this.operator) {
 			case("add"):
-				return (Integer) (v1.getValue()) + (Integer) (v2.getValue());
+				return (int) (v1.getValue()) + (int) (v2.getValue());
 			case("sub"):
-				return (Integer) (v1.getValue()) - (Integer) (v2.getValue());
+				return (int) (v1.getValue()) - (int) (v2.getValue());
 			case("mul"):
-				return (Integer) (v1.getValue()) * (Integer) (v2.getValue());
+				return (int) (v1.getValue()) * (int) (v2.getValue());
 			case("div"):
-				return (Integer) (v1.getValue()) / (Integer) (v2.getValue());
+				return (int) (v1.getValue()) / (int) (v2.getValue());
 		}
 		return 0;
 	}

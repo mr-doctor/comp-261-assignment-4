@@ -44,6 +44,12 @@ public class ConditionNode {
 			return v1 + " > " + v2;
 		} else if (operator.equals("eq")) {
 			return v1 + " == " + v2;
+		} else if (operator.equals("or")) {
+			return c1 + " || " + c2;
+		} else if (operator.equals("and")) {
+			return c1 + " && " + c2;
+		} else if (operator.equals("not")) {
+			return "!" + c1;
 		}
 		return null;
 	}
@@ -82,28 +88,62 @@ public class ConditionNode {
 	}
 
 	public void initialise(Robot r) {
-		switch (v1.getName()) {
-			case ("fuelLeft"):
-				v1.setValue(r.getFuel());
-				break;
-			case ("oppLR"):
-				v1.setValue(r.getOpponentLR());
-				break;
-			case ("oppFB"):
-				v1.setValue(r.getOpponentFB());
-				break;
-			case ("barrelLR"):
-				v1.setValue(r.getClosestBarrelLR());
-				break;
-			case ("barrelFB"):
-				v1.setValue(r.getClosestBarrelFB());
-				break;
-			case ("numBarrels"):
-				v1.setValue(r.numBarrels());
-				break;
-			case ("wallDist"):
-				v1.setValue(r.getDistanceToWall());
-				break;
+		if (v1 != null && v2 != null) {
+			if (v1.isRobotVariable()) {
+				switch (v1.getName()) {
+					case ("fuelLeft"):
+						v1.setValue(r.getFuel());
+						break;
+					case ("oppLR"):
+						v1.setValue(r.getOpponentLR());
+						break;
+					case ("oppFB"):
+						v1.setValue(r.getOpponentFB());
+						break;
+					case ("barrelLR"):
+						v1.setValue(r.getClosestBarrelLR());
+						break;
+					case ("barrelFB"):
+						v1.setValue(r.getClosestBarrelFB());
+						break;
+					case ("numBarrels"):
+						v1.setValue(r.numBarrels());
+						break;
+					case ("wallDist"):
+						v1.setValue(r.getDistanceToWall());
+						break;
+				}
+			}
+			if (v2.isRobotVariable()) {
+				switch (v2.getName()) {
+					case ("fuelLeft"):
+						v2.setValue(r.getFuel());
+						break;
+					case ("oppLR"):
+						v2.setValue(r.getOpponentLR());
+						break;
+					case ("oppFB"):
+						v2.setValue(r.getOpponentFB());
+						break;
+					case ("barrelLR"):
+						v2.setValue(r.getClosestBarrelLR());
+						break;
+					case ("barrelFB"):
+						v2.setValue(r.getClosestBarrelFB());
+						break;
+					case ("numBarrels"):
+						v2.setValue(r.numBarrels());
+						break;
+					case ("wallDist"):
+						v2.setValue(r.getDistanceToWall());
+						break;
+				}
+			}
+		} else {
+			c1.initialise(r);
+			if (c2 != null) {
+				c2.initialise(r);
+			}
 		}
 	}
 }
